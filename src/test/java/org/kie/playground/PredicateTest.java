@@ -6,24 +6,23 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TransformerTest {
+public class PredicateTest {
     @Test
     public void checkContents() {
         var ds = new ListDataStream<String>();
         // prepend "x" to all strings it sees
-        var transf =
-                FunctionTransformer.of((String s) -> "x" + s);
+        var f = PredicateFilter.of((String s) -> s.matches("[aeiouAEIOU]"));
 
-        ds.subscribe(transf);
+        ds.subscribe(f);
 
         var rec = new RecordingSubscriber<String>();
-        transf.subscribe(rec);
+        f.subscribe(rec);
 
         ds.append("a");
         ds.append("b");
         ds.append("c");
 
 
-        assertEquals(List.of("xa", "xb", "xc"), rec.getData());
+        assertEquals(List.of("a"), rec.getData());
     }
 }
