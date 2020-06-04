@@ -19,7 +19,5 @@ public class ListDataStoreTest {
         ds.add("b");
         ds.add("c");
         assertEquals(List.of("a", "b", "c"), sub.getData());
-        
-
     }
 }

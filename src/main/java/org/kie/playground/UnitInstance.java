@@ -8,6 +8,7 @@ public class UnitInstance<T> {
     UnitInstance(Unit<T> unit) {
         this.unit = unit;
         this.rt = new Runtime();
+        bind();
     }
     
     private void bind() {
@@ -25,7 +26,7 @@ public class UnitInstance<T> {
     }
 
     public void run() {
-        bind();
+        rt.run();
     }
 
     public Unit<T> unit() {
