@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
  * Unit test for simple App.
  */
 public class UnitInstanceTest {
+
     @Test
     public void checkContents() {
         var c = new MyContext();
@@ -15,11 +16,10 @@ public class UnitInstanceTest {
         c.ds.add("c");
         var ui = u.createInstance();
         ui.run();
-        
-
     }
 }
 
 class MyContext {
+
     DataStore<String> ds = ListDataStore.create();
 }

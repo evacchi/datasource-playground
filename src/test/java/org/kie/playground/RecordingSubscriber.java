@@ -3,8 +3,8 @@ package org.kie.playground;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecordingSubscriber<T> implements Subscriber<T> {;
-    
+public class RecordingSubscriber<T> implements Subscriber<T> {
+
     ArrayList<T> list = new ArrayList<>();
 
     @Override
@@ -15,10 +15,9 @@ public class RecordingSubscriber<T> implements Subscriber<T> {;
     @Override
     public void removed(DataHandle<T> dh) {
         list.remove(dh.getObject());
-    };
+    }
 
-    public List<T> getData() {;
+    public List<T> getData() {
         return new ArrayList<>(list);
     }
-    
 }

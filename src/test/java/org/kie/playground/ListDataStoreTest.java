@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
  * Unit test for simple App.
  */
 public class ListDataStoreTest {
+
     @Test
     public void checkContents() {
         var ds = new ListDataStore<String>();

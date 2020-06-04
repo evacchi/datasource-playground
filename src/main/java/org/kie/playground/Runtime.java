@@ -14,13 +14,9 @@ public class Runtime implements Subscriber<Object> {
     @Override
     public void removed(DataHandle<Object> dh) {
         list.remove(dh.getObject());
-    };
-
-    public void run() {;
-        System.out.println(list);
     }
 
-
-
-    
+    public void run() {
+        System.out.println(list);
+    }
 }
