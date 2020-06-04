@@ -8,6 +8,12 @@ public class ListDataStore<T> implements DataStore<T> {
     private final ArrayList<DataHandle<T>> order = new ArrayList<>();
     private final ArrayList<Subscriber<T>> subscribers = new ArrayList<>();
 
+    public static <T> DataStore<T> create() {
+        return new ListDataStore<>();
+    }
+
+    ListDataStore() {}
+
     public DataHandle<T> add(T t) {
         DataHandle<T> dh = DataHandle.of(t);
         store.put(t, dh);
