@@ -1,5 +1,5 @@
 package org.kie.playground;
 
-public interface Index {
+public interface Index<T, U> {
 
 }
