@@ -11,20 +11,20 @@ public class PredicateTest {
 
     @Test
     public void filter1() {
-        var ds = new ListDataStream<String>();
+        var source = new ListDataStream<String>();
         // keep vowels
         var f = PredicateFilter.of((String s) -> s.matches("[aeiouAEIOU]"));
 
-        ds.subscribe(f);
+        source.subscribe(f);
 
-        var rec = new RecordingSubscriber<String>();
-        f.subscribe(rec);
+        var sink = new RecordingSubscriber<String>();
+        f.subscribe(sink);
 
-        ds.append("a");
-        ds.append("b");
-        ds.append("c");
+        source.append("a");
+        source.append("b");
+        source.append("c");
 
-        assertEquals(List.of("a"), rec.getData());
+        assertEquals(List.of("a"), sink.getData());
     }
 
     /**
@@ -34,36 +34,82 @@ public class PredicateTest {
      */
     @Test
     public void filter2() {
-        var ds = new ListDataStream<String>();
+        var source = new ListDataStream<String>();
 
         // keep vowels
         var f1 = PredicateFilter.of((String s) -> s.matches("[aeiouAEIOU]"));
         // keep others
         var f2 = PredicateFilter.of((String s) -> s.matches("[^aeiouAEIOU]"));
 
-        ds.subscribe(f1);
-        ds.subscribe(f2);
+        source.subscribe(f1);
+        source.subscribe(f2);
 
-        var rec1 = new RecordingSubscriber<String>();
-        f1.subscribe(rec1);
+        var sink1 = new RecordingSubscriber<String>();
+        f1.subscribe(sink1);
 
-        var rec2 = new RecordingSubscriber<String>();
-        f2.subscribe(rec2);
+        var sink2 = new RecordingSubscriber<String>();
+        f2.subscribe(sink2);
 
-        ds.append("a");
-        ds.append("b");
-        ds.append("c");
-        ds.append("1");
+        source.append("a");
+        source.append("b");
+        source.append("c");
+        source.append("1");
 
         /*
-                     ds <---- append
+                    source <---- append
                   /     \
                 f1      f2
                 |       |
-              rec1     rec2
+              sink1     sink2
          */
 
-        assertEquals(List.of("a"), rec1.getData());
-        assertEquals(List.of("b", "c", "1"), rec2.getData());
+        assertEquals(List.of("a"), sink1.getData());
+        assertEquals(List.of("b", "c", "1"), sink2.getData());
+    }
+
+    @Test
+    public void filter3() {
+        var source = new ListDataStream<String>();
+        var sink1 = new RecordingSubscriber<String>();
+        var sink2 = new RecordingSubscriber<String>();
+        var sink3 = new RecordingSubscriber<String>();
+
+        // keep vowels
+        var f1 = PredicateFilter.of((String s) -> s.matches("[aeiouAEIOU]"));
+        // keep others
+        var f2 = PredicateFilter.of((String s) -> s.matches("[^aeiouAEIOU]"));
+        // keep numbers
+        var f3 = PredicateFilter.of((String s) -> s.matches("[0-9]"));
+
+
+        source.subscribe(f1);
+        source.subscribe(f2);
+
+        f1.subscribe(sink1);
+
+        f2.subscribe(sink2);
+
+        f2.subscribe(f3);
+
+        f3.subscribe(sink3);
+
+        source.append("a");
+        source.append("b");
+        source.append("c");
+        source.append("1");
+
+        /*
+                   source <---- append
+                  /      \
+                f1       f2
+                |      /   \
+              sink1  sink2  f3
+                             \
+                            sink3
+         */
+
+        assertEquals(List.of("a"), sink1.getData());
+        assertEquals(List.of("b", "c", "1"), sink2.getData());
+        assertEquals(List.of("1"), sink3.getData());
     }
 }
