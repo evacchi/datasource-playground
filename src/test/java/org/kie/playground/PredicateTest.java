@@ -106,4 +106,51 @@ public class PredicateTest {
         assertEquals(List.of("b", "c", "1"), sink2.getData());
         assertEquals(List.of("1"), sink3.getData());
     }
+
+    @Test
+    public void failing() {
+        var source = new ListDataStream<String>();
+        // append right away
+        source.append("a");
+        source.append("b");
+        source.append("c");
+        source.append("1");
+
+        var sink0 = new RecordingSubscriber<String>();
+        var sink1 = new RecordingSubscriber<String>();
+        var sink2 = new RecordingSubscriber<String>();
+        var sink3 = new RecordingSubscriber<String>();
+
+        // keep vowels
+        var vowels = PredicateFilter.of((String s) -> s.matches("[aeiouAEIOU]"));
+        // keep others
+        var nonVowels = PredicateFilter.of((String s) -> s.matches("[^aeiouAEIOU]"));
+        // keep numbers
+        var digits = PredicateFilter.of((String s) -> s.matches("[0-9]"));
+
+        source.subscribe(sink0);
+        source.subscribe(vowels);
+        source.subscribe(nonVowels);
+        nonVowels.subscribe(digits);
+
+        vowels.subscribe(sink1);
+        nonVowels.subscribe(sink2);
+        digits.subscribe(sink3);
+
+        /*
+           +------ source <---- append
+           |        /   \
+        sink0  vowels   nonVowels
+                 |      /   \
+              sink1  sink2  digits
+                              \
+                            sink3
+         */
+
+
+        assertEquals(List.of("a", "b", "c", "1"), sink0.getData());
+        assertEquals(List.of(), sink1.getData());
+        assertEquals(List.of(), sink2.getData());
+        assertEquals(List.of(), sink3.getData());
+    }
 }
