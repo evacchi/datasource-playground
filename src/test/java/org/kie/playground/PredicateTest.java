@@ -14,10 +14,9 @@ public class PredicateTest {
         var source = new ListDataStream<String>();
         // keep vowels
         var f = PredicateFilter.of((String s) -> s.matches("[aeiouAEIOU]"));
+        var sink = new RecordingSubscriber<String>();
 
         source.subscribe(f);
-
-        var sink = new RecordingSubscriber<String>();
         f.subscribe(sink);
 
         source.append("a");
@@ -35,6 +34,8 @@ public class PredicateTest {
     @Test
     public void filter2() {
         var source = new ListDataStream<String>();
+        var sink1 = new RecordingSubscriber<String>();
+        var sink2 = new RecordingSubscriber<String>();
 
         // keep vowels
         var f1 = PredicateFilter.of((String s) -> s.matches("[aeiouAEIOU]"));
@@ -44,16 +45,8 @@ public class PredicateTest {
         source.subscribe(f1);
         source.subscribe(f2);
 
-        var sink1 = new RecordingSubscriber<String>();
         f1.subscribe(sink1);
-
-        var sink2 = new RecordingSubscriber<String>();
         f2.subscribe(sink2);
-
-        source.append("a");
-        source.append("b");
-        source.append("c");
-        source.append("1");
 
         /*
                     source <---- append
@@ -62,6 +55,11 @@ public class PredicateTest {
                 |       |
               sink1     sink2
          */
+
+        source.append("a");
+        source.append("b");
+        source.append("c");
+        source.append("1");
 
         assertEquals(List.of("a"), sink1.getData());
         assertEquals(List.of("b", "c", "1"), sink2.getData());
@@ -81,22 +79,13 @@ public class PredicateTest {
         // keep numbers
         var f3 = PredicateFilter.of((String s) -> s.matches("[0-9]"));
 
-
         source.subscribe(f1);
         source.subscribe(f2);
-
-        f1.subscribe(sink1);
-
-        f2.subscribe(sink2);
-
         f2.subscribe(f3);
 
+        f1.subscribe(sink1);
+        f2.subscribe(sink2);
         f3.subscribe(sink3);
-
-        source.append("a");
-        source.append("b");
-        source.append("c");
-        source.append("1");
 
         /*
                    source <---- append
@@ -107,6 +96,11 @@ public class PredicateTest {
                              \
                             sink3
          */
+
+        source.append("a");
+        source.append("b");
+        source.append("c");
+        source.append("1");
 
         assertEquals(List.of("a"), sink1.getData());
         assertEquals(List.of("b", "c", "1"), sink2.getData());
