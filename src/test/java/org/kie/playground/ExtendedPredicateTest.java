@@ -33,12 +33,34 @@ public class ExtendedPredicateTest {
     public void filter1() {
         var source = new ExtendedListDataStream<Restaurant>(
                 List.of(r -> r.getLocation().equals("paris"),
-                        r -> r.getLocation().equals("rome")),
+                        r -> r.getLocation().equals("london")),
                 List.of(new LambdaIndex<>(Restaurant::getLocation))
         );
         var sink = new RecordingSubscriber<Restaurant>();
 
         source.subscribe(sink);
+
+        var paris = new Restaurant("paris");
+        var rome = new Restaurant("rome");
+        var london = new Restaurant("london");
+
+        source.append(paris);
+        source.append(rome);
+        source.append(london);
+
+        assertEquals(List.of(paris, london), sink.getData());
+    }
+
+    @Test
+    public void filter2() {
+        var source = new ExtendedListDataStream<Restaurant>(
+                List.of(r -> r.getLocation().equals("paris"),
+                        r -> r.getLocation().equals("london")),
+                List.of(new LambdaIndex<>(Restaurant::getLocation))
+        );
+        var sink = new RecordingSubscriber<Restaurant>();
+
+        source.subscribe(sink, 0);
 
         var paris = new Restaurant("paris");
         var rome = new Restaurant("rome");
