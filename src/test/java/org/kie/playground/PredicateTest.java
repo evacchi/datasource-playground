@@ -55,6 +55,14 @@ public class PredicateTest {
         ds.append("c");
         ds.append("1");
 
+        /*
+                     ds <---- append
+                  /     \
+                f1      f2
+                |       |
+              rec1     rec2
+         */
+
         assertEquals(List.of("a"), rec1.getData());
         assertEquals(List.of("b", "c", "1"), rec2.getData());
     }
