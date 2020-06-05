@@ -38,22 +38,22 @@ public class PredicateTest {
         var sink2 = new RecordingSubscriber<String>();
 
         // keep vowels
-        var f1 = PredicateFilter.of((String s) -> s.matches("[aeiouAEIOU]"));
+        var vowels = PredicateFilter.of((String s) -> s.matches("[aeiouAEIOU]"));
         // keep others
-        var f2 = PredicateFilter.of((String s) -> s.matches("[^aeiouAEIOU]"));
+        var nonVowels = PredicateFilter.of((String s) -> s.matches("[^aeiouAEIOU]"));
 
-        source.subscribe(f1);
-        source.subscribe(f2);
+        source.subscribe(vowels);
+        source.subscribe(nonVowels);
 
-        f1.subscribe(sink1);
-        f2.subscribe(sink2);
+        vowels.subscribe(sink1);
+        nonVowels.subscribe(sink2);
 
         /*
                     source <---- append
-                  /     \
-                f1      f2
-                |       |
-              sink1     sink2
+                  /        \
+                vowels   nonVowels
+                |           |
+              sink1       sink2
          */
 
         source.append("a");
@@ -73,26 +73,26 @@ public class PredicateTest {
         var sink3 = new RecordingSubscriber<String>();
 
         // keep vowels
-        var f1 = PredicateFilter.of((String s) -> s.matches("[aeiouAEIOU]"));
+        var vowels = PredicateFilter.of((String s) -> s.matches("[aeiouAEIOU]"));
         // keep others
-        var f2 = PredicateFilter.of((String s) -> s.matches("[^aeiouAEIOU]"));
+        var nonVowels = PredicateFilter.of((String s) -> s.matches("[^aeiouAEIOU]"));
         // keep numbers
-        var f3 = PredicateFilter.of((String s) -> s.matches("[0-9]"));
+        var digits = PredicateFilter.of((String s) -> s.matches("[0-9]"));
 
-        source.subscribe(f1);
-        source.subscribe(f2);
-        f2.subscribe(f3);
+        source.subscribe(vowels);
+        source.subscribe(nonVowels);
+        nonVowels.subscribe(digits);
 
-        f1.subscribe(sink1);
-        f2.subscribe(sink2);
-        f3.subscribe(sink3);
+        vowels.subscribe(sink1);
+        nonVowels.subscribe(sink2);
+        digits.subscribe(sink3);
 
         /*
                    source <---- append
                   /      \
-                f1       f2
+              vowels   nonVowels
                 |      /   \
-              sink1  sink2  f3
+             sink1  sink2  digits
                              \
                             sink3
          */
