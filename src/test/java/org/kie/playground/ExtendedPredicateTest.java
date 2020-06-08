@@ -1,7 +1,6 @@
 package org.kie.playground;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +30,7 @@ public class ExtendedPredicateTest {
 
     @Test
     public void filter1() {
-        var source = new ExtendedListDataStream<Restaurant>(
+        var source = new ExtendedListDataStore<Restaurant>(
                 List.of(r -> r.getLocation().equals("paris"),
                         r -> r.getLocation().equals("london")),
                 List.of(new LambdaIndex<>(Restaurant::getLocation))
@@ -44,16 +43,16 @@ public class ExtendedPredicateTest {
         var rome = new Restaurant("rome");
         var london = new Restaurant("london");
 
-        source.append(paris);
-        source.append(rome);
-        source.append(london);
+        source.add(paris);
+        source.add(rome);
+        source.add(london);
 
         assertEquals(List.of(paris, london), sink.getData());
     }
 
     @Test
     public void filter2() {
-        var source = new ExtendedListDataStream<Restaurant>(
+        var source = new ExtendedListDataStore<Restaurant>(
                 List.of(r -> r.getLocation().equals("paris"),
                         r -> r.getLocation().equals("london")),
                 List.of(new LambdaIndex<>(Restaurant::getLocation))
@@ -66,9 +65,9 @@ public class ExtendedPredicateTest {
         var rome = new Restaurant("rome");
         var london = new Restaurant("london");
 
-        source.append(paris);
-        source.append(rome);
-        source.append(london);
+        source.add(paris);
+        source.add(rome);
+        source.add(london);
 
         assertEquals(List.of(paris, london), sink.getData());
     }
