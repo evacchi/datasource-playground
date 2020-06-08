@@ -1,7 +1,6 @@
 package org.kie.playground;
 
 import java.util.ArrayList;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class PredicateFilter<T> implements Filter<T> {

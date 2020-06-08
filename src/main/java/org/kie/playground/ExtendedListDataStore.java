@@ -2,51 +2,34 @@ package org.kie.playground;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class ExtendedListDataStore<T> implements DataStore<T> {
 
     private final IdentityHashMap<Object, DataHandle<T>> store = new IdentityHashMap<>();
     private final ArrayList<DataHandle<T>> order = new ArrayList<>();
-    private final HashMap<Long, Subscriber<T>> subscribers = new HashMap<>();
 
-    private final Collection<Predicate<T>> predicates;
-    private final Collection<Index<T, ?>> indices;
+    private final Collection<Subscriber<T>> subscribers;
+    private final FanOut<T> fanOut;
 
-    public ExtendedListDataStore(Collection<Predicate<T>> predicates, Collection<Index<T, ?>> indices) {
-        this.predicates = predicates;
-        this.indices = indices;
+    public ExtendedListDataStore(Collection<Index<T, ?>> indices) {
+        this.subscribers = new ArrayList<>();
+        this.fanOut = new FanOut<T>();    // this is the "no-index" index
+        this.subscribers.addAll(indices);     // other indices
     }
 
     public DataHandle<T> add(T t) {
         DataHandle<T> dh = DataHandle.of(t);
         store.put(t, dh);
         order.add(dh);
-
-        indices.stream()
-                .map(idx -> idx.apply(t))
-                .map(subscribers::get)
-                .forEach(s -> this.notifySubscriber(s, dh));
+        // propagate to everyone (hash/filter is delegated to impl)
+        fanOut.added(dh);
+        subscribers.forEach(idx -> idx.added(dh));
         return dh;
     }
 
     public void subscribe(Subscriber<T> subscriber) {
-        subscribers.add(subscriber);
-        order.forEach(dh -> notifySubscriber(subscriber, dh));
-    }
-
-    public void subscribe(Subscriber<T> subscriber, int indexId) {
-        subscribers.add(subscriber);
-        order.forEach(dh -> notifySubscriber(subscriber, dh));
-    }
-
-    private void notifySubscriber(Subscriber<T> subscriber, DataHandle<T> dh) {
-        if (predicates.stream().anyMatch(p -> p.test(dh.getObject()))) {
-            subscriber.added(dh);
-        }
+        fanOut.subscribe(subscriber);
     }
 
     @Override
