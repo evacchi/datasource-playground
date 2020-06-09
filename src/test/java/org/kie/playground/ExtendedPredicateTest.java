@@ -105,7 +105,7 @@ public class ExtendedPredicateTest {
         var myJoin = new RecordingSubscriber<Restaurant>() {
             @Override
             public void added(DataHandle<Restaurant> dh) {
-                // notify only those whose name is in ds2Memory (paris, london, rome)
+                // notify only those whose name is in ds2Memory
                 ds2Memory.getData().stream().filter(d -> d.equals(dh.getObject().getName())).forEach(v -> super.added(dh));
             }
         };
