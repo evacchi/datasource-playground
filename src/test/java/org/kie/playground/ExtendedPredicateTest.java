@@ -93,13 +93,11 @@ public class ExtendedPredicateTest {
         var ds1IndexLocation = LambdaIndex.of(Restaurant::getLocation);
         var ds1 = source(List.of(ds1IndexLocation));
         var ds1MainMemory = sink(Restaurant.class);
+        ds1.subscribe(ds1MainMemory);
 
         PredicateFilter<Restaurant> paris100 = PredicateFilter.of(r -> r.getTables() >= 100);
         ds1IndexLocation.subscribe("paris", paris100);
-
-        var ds1Paris100 = new RecordingSubscriber<Restaurant>();
-
-        ds1.subscribe(ds1MainMemory);
+        var ds1Paris100 = sink(Restaurant.class);
         paris100.subscribe(ds1Paris100);
 
         var myJoin = new RecordingSubscriber<Restaurant>() {
@@ -111,7 +109,6 @@ public class ExtendedPredicateTest {
         };
 
         ds1IndexLocation.subscribe(myJoin);
-
 
         // add data to DS2
 
