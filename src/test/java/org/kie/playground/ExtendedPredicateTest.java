@@ -89,7 +89,6 @@ public class ExtendedPredicateTest {
         var ds2Memory = sink(String.class);
         ds2.subscribe(ds2Memory);
 
-
         var ds1IndexLocation = LambdaIndex.of(Restaurant::getLocation);
         var ds1 = source(List.of(ds1IndexLocation));
         var ds1MainMemory = sink(Restaurant.class);
@@ -103,8 +102,13 @@ public class ExtendedPredicateTest {
         var myJoin = new RecordingSubscriber<Restaurant>() {
             @Override
             public void added(DataHandle<Restaurant> dh) {
+                Restaurant incomingRestaurant = dh.getObject();
                 // notify only those whose name is in ds2Memory
-                ds2Memory.getData().stream().filter(d -> d.equals(dh.getObject().getName())).forEach(v -> super.added(dh));
+                for (String d : ds2Memory.getData()) {
+                    if (d.equals(incomingRestaurant.getName())) {
+                        super.added(dh);
+                    }
+                }
             }
         };
 
