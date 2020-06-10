@@ -85,41 +85,31 @@ public class ExtendedPredicateTest {
 
     @Test
     public void join() {
-        var ds2 = source(String.class);
-        var ds2Memory = sink(String.class);
-        ds2.subscribe(ds2Memory);
+        var right = source(String.class);
+        var rightMemory = sink(String.class);
+        right.subscribe(rightMemory);
 
-        var ds1IndexLocation = LambdaIndex.of(Restaurant::getLocation);
-        var ds1 = source(List.of(ds1IndexLocation));
-        var ds1MainMemory = sink(Restaurant.class);
-        ds1.subscribe(ds1MainMemory);
+        var leftIndexLocation = LambdaIndex.of(Restaurant::getLocation);
+        var left = source(List.of(leftIndexLocation));
+        var leftMainMemory = sink(Restaurant.class);
+        left.subscribe(leftMainMemory);
 
         PredicateFilter<Restaurant> paris100 = PredicateFilter.of(r -> r.getTables() >= 100);
-        ds1IndexLocation.subscribe("paris", paris100);
-        var ds1Paris100 = sink(Restaurant.class);
-        paris100.subscribe(ds1Paris100);
+        leftIndexLocation.subscribe("paris", paris100);
+        var leftParis100 = sink(Restaurant.class);
+        paris100.subscribe(leftParis100);
 
-        var myJoin = new RecordingSubscriber<Restaurant>() {
-            @Override
-            public void added(DataHandle<Restaurant> dh) {
-                Restaurant incomingRestaurant = dh.getObject();
-                // notify only those whose name is in ds2Memory
-                for (String d : ds2Memory.getData()) {
-                    if (d.equals(incomingRestaurant.getName())) {
-                        super.added(dh);
-                    }
-                }
-            }
-        };
+        var myJoin = Join.of((Restaurant r, String s) -> r.getName().equals(s));
 
-        ds1IndexLocation.subscribe(myJoin);
+        leftIndexLocation.subscribe(myJoin.left());
+        right.subscribe(myJoin.right());
 
         // add data to DS2
 
-        ds2.add("Sora Lella");
-        ds2.add("La Rive Gauche");
+        right.add("Sora Lella");
+        right.add("La Rive Gauche");
 
-        assertEquals(List.of("Sora Lella", "La Rive Gauche"), ds2Memory.getData());
+        assertEquals(List.of("Sora Lella", "La Rive Gauche"), rightMemory.getData());
 
         // add data to DS1
 
@@ -128,19 +118,21 @@ public class ExtendedPredicateTest {
         var soraLella = new Restaurant("Sora Lella", "rome", 30);
         var flatIron = new Restaurant("Flat Iron", "london", 120);
 
-        ds1.add(chatNoir);
-        ds1.add(riveGauche);
-        ds1.add(soraLella);
-        ds1.add(flatIron);
+        left.add(chatNoir);
+        left.add(riveGauche);
+        left.add(soraLella);
+        left.add(flatIron);
 
         // main memory contains all
-        assertEquals(List.of(chatNoir, riveGauche, soraLella, flatIron), ds1MainMemory.getData());
+        assertEquals(List.of(chatNoir, riveGauche, soraLella, flatIron), leftMainMemory.getData());
 
         // paris100 bucket contains only restaurants in paris with >=100 tables
-        assertEquals(List.of(chatNoir), ds1Paris100.getData());
+        assertEquals(List.of(chatNoir), leftParis100.getData());
 
         // myJoin contains all restaurants whose names are in DS2
-        assertEquals(List.of(riveGauche, soraLella), myJoin.getData());
+        assertEquals(List.of(
+                Pair.of(riveGauche, "La Rive Gauche"), Pair.of(soraLella, "Sora Lella")),
+                     myJoin.getPairs());
     }
 
     private <T, R> ExtendedListDataStore<T> source(Collection<Index<T, ?>> index) {
