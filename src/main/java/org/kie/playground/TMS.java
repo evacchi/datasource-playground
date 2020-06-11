@@ -31,8 +31,10 @@ public class TMS<T> {
             public void added(DataHandle<T> dh) {
                 var equalityKey = justify(dh);
                 if (equalityKey.stated().isEmpty()) {
-                    // propagate the equality representative
-                    super.added(equalityKey.handle());
+                    if (equalityKey.justified().size() == 1) {
+                        // propagate this
+                        super.added(dh);
+                    } // otherwise do nothing
                 }
             }
         };
