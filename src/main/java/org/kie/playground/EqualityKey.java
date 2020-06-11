@@ -12,7 +12,6 @@ public class EqualityKey<T> {
 
     public EqualityKey(DataHandle<T> handle) {
         this.handle = handle;
-        this.state(handle);
     }
 
     public DataHandle<T> handle() {
@@ -57,21 +56,10 @@ public class EqualityKey<T> {
 
 
     public void state(DataHandle<T> value) {
-        if (isStated(value)) return;
-        if (isJustified(value)) {
-            this.justified.remove(value);
-            this.stated.add(value);
-        }
         this.stated.add(value);
     }
 
     public void justify(DataHandle<T> value) {
-        if (isJustified(value)) return;
-        if (isStated(value)) {
-            this.justified.remove(value);
-            this.stated.add(value);
-        }
-
         this.justified.add(value);
     }
 
