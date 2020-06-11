@@ -1,7 +1,8 @@
 package org.kie.playground;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
 
 public class EqualityKey<T> {
 
@@ -43,8 +44,15 @@ public class EqualityKey<T> {
         return stated.contains(value);
     }
 
+    public Collection<DataHandle<T>> stated() {
+        return Collections.unmodifiableSet(stated);
+    }
     public boolean isJustified(DataHandle<T> value) {
         return justified.contains(value);
+    }
+
+    public Collection<DataHandle<T>> justified() {
+        return Collections.unmodifiableSet(justified);
     }
 
 
